@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Team Task Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    function App() {
+      const [tasks, setTasks] = useState([
+        { id: 1, title: 'Set up PR checks for team repo', priority: 'High', status: 'Done', assignee: 'Alex' },
+        { id: 2, title: 'Connect Linear issue tracking', priority: 'Medium', status: 'In Progress', assignee: 'Sam' },
+        { id: 3, title: 'Verify localhost reverse proxy flow', priority: 'Urgent', status: 'Todo', assignee: 'Jordan' },
+      ]);
+      const [title, setTitle] = useState('');
+      const [priority, setPriority] = useState('Medium');
+      const [assignee, setAssignee] = useState('Alex');
+
+      const addTask = (e) => {
+        e.preventDefault();
+        if (!title.trim()) return;
+        const newTask = {
+          id: Date.now(),
+          title,
+          priority,
+          status: 'Todo',
+          assignee
+        };
+        setTasks([newTask, ...tasks]);
+        setTitle('');
+      };
+
+      const toggleStatus = (id) => {
+        setTasks(tasks.map(t => {
+          if (t.id === id) {
+            const nextStatus = t.status === 'Todo' ? 'In Progress' : t.status === 'In Progress' ? 'Done' : 'Todo';
+            return { ...t, status: nextStatus };
+          }
+          return t;
+        }));
+      };
+
+      const deleteTask = (id) => {
+        setTasks(tasks.filter(t => t.id !== id));
+      };
+
+      return (
+        <div className="max-w-4xl mx-auto py-10 px-4">
+          <header className="flex justify-between items-center mb-8 border-b border-slate-800 pb-5">
+            <div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+                Team Task Hub
+              </h1>
+              <p className="text-slate-400 text-sm mt-1">Live collaborative sprint board for rapid shipping</p>
+            </div>
+            <span className="bg-emerald-500/10 text-emerald-400 text-xs px-3 py-1 rounded-full border border-emerald-500/20 font-medium">
+              ● All Systems Operational
+            </span>
+          </header>
+
+          <form onSubmit={addTask} className="bg-slate-800/60 p-5 rounded-xl border border-slate-700/60 mb-8 flex flex-wrap gap-3">
+            <input
+              type="text"
+              placeholder="Enter new feature or bug ticket..."
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="flex-1 min-w-[240px] bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-indigo-500"
+            />
+            <select
+              value={priority}
+              onChange={(e) => setPriority(e.target.value)}
+              className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-300"
+            >
+              <option>Low</option>
+              <option>Medium</option>
+              <option>High</option>
+              <option>Urgent</option>
+            </select>
+            <select
+              value={assignee}
+              onChange={(e) => setAssignee(e.target.value)}
+              className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-300"
+            >
+              <option>Alex</option>
+              <option>Sam</option>
+              <option>Jordan</option>
+            </select>
+            <button
+              type="submit"
+              className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-5 py-2 rounded-lg text-sm transition"
+            >
+              Add Ticket
+            </button>
+          </form>
+
+          <div className="space-y-3">
+            {tasks.map(task => (
+              <div key={task.id} className="bg-slate-800/40 border border-slate-700/50 p-4 rounded-xl flex items-center justify-between hover:border-slate-600 transition">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => toggleStatus(task.id)}
+                    className={`text-xs px-2.5 py-1 rounded-md font-medium border ${
+                      task.status === 'Done' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                      task.status === 'In Progress' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
+                      'bg-slate-700 text-slate-300 border-slate-600'
+                    }`}
+                  >
+                    {task.status}
+                  </button>
+                  <span className={`font-medium ${task.status === 'Done' ? 'line-through text-slate-500' : 'text-slate-200'}`}>
+                    {task.title}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-xs bg-slate-700/60 px-2 py-0.5 rounded text-slate-400">@{task.assignee}</span>
+                  <button
+                    onClick={() => deleteTask(task.id)}
+                    className="text-slate-500 hover:text-rose-400 text-sm px-2"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
